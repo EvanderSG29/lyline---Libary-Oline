@@ -15,11 +15,26 @@ class CategoryController extends Controller
      */
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::latest()->paginate(5);
+        $query = Category::query();
+
+        // Search by category name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('category', 'like', "%{$search}%");
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'id');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $query->orderBy($sortBy, $sortDirection);
+
+        // Paginate
+        $categories = $query->paginate(10);
+
         return view('books.categories.index', compact('categories'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
+            ->with('i', ($categories->currentPage() - 1) * $categories->perPage());
     }
 
     /**
@@ -27,7 +42,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('categories.create');
+        return view('books.categories.create');
     }
 
     /**
@@ -35,7 +50,10 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        Category::create($request->validated());
+        $data = $request->validated();
+        $data['created_by'] = auth()->id();
+        $data['updated_by'] = auth()->id();
+        Category::create($data);
         return redirect()->route('categories.index')
             ->with('success', 'Category created successfully.');
     }
@@ -61,7 +79,9 @@ class CategoryController extends Controller
      */
     public function update(CategoryUpdateRequest $request, Category $category)
     {
-        $category->update($request->validated());
+        $data = $request->validated();
+        $data['updated_by'] = auth()->id();
+        $category->update($data);
         return redirect()->route('categories.index')
             ->with('success', 'Category updated successfully.');
     }
@@ -74,5 +94,23 @@ class CategoryController extends Controller
         $category->delete();
         return redirect()->route('categories.index')
             ->with('success', 'Category deleted successfully.');
+    }
+
+    /**
+     * Bulk delete categories.
+     */
+    public function bulkDelete(Request $request)
+    {
+        $categoryIds = $request->input('category_ids', []);
+
+        if (empty($categoryIds)) {
+            return redirect()->route('categories.index')
+                ->with('error', 'No categories selected for deletion.');
+        }
+
+        Category::whereIn('id', $categoryIds)->delete();
+
+        return redirect()->route('categories.index')
+            ->with('success', count($categoryIds) . ' categories deleted successfully.');
     }
 }

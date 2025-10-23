@@ -12,7 +12,10 @@
                 </div>
                 <div class="card-body">
                     @if(session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
                     @endif
 
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
@@ -34,13 +37,7 @@
                             <label for="password_confirmation">Confirm Password</label>
                             <input type="password" name="password_confirmation" class="form-control">
                         </div>
-                        <div class="mb-3">
-                            <label for="image">Profile Image</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                            @if($user->image)
-                                <img src="{{ asset('storage/images/' . $user->image) }}" alt="Profile Image" class="mt-2" style="width: 100px; height: 100px;">
-                            @endif
-                        </div>
+
                         <button type="submit" class="btn btn-primary">Update Profile</button>
                     </form>
                 </div>
@@ -49,3 +46,18 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Auto-hide success alert after 8 seconds
+    setTimeout(function() {
+        const alert = document.getElementById('success-alert');
+        if (alert) {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }
+    }, 8000);
+</script>
+@endpush
+
+

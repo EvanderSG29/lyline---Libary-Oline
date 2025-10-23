@@ -17,14 +17,14 @@
                         @csrf
 
                         <div class="mb-3">
-                            <label for="data_borrow_id" class="form-label">Borrower Name</label>
-                            <select name="data_borrow_id" id="data_borrow_id" class="form-control @error('data_borrow_id') is-invalid @enderror" required>
+                            <label for="user_id" class="form-label">Borrower Name</label>
+                            <select name="user_id" id="user_id" class="form-control @error('user_id') is-invalid @enderror" required>
                                 <option value="">Select Borrower</option>
-                                @foreach($databorrows as $databorrow)
-                                    <option value="{{ $databorrow->id }}" {{ old('data_borrow_id') == $databorrow->id ? 'selected' : '' }}>{{ $databorrow->name_borrower }}</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                                 @endforeach
                             </select>
-                            @error('data_borrow_id')
+                            @error('user_id')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -81,8 +81,8 @@
 <script>
     $(document).ready(function() {
         // Inisialisasi Select2 pada elemen select
-        $('#data_borrow_id').select2();
+        $('#user_id').select2();
         $('#book_id').select2();
     });
 </script>
-@endsection
+@endpush

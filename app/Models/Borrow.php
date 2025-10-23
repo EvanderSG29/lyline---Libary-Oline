@@ -11,16 +11,21 @@ class Borrow extends Model
     use HasFactory;
 
     protected $fillable = [
-        'data_borrow_id',
+        'user_id',
         'book_id',
         'borrow_date',
         'return_date',
         'status',
     ];
 
-    public function dataBorrow()
+    protected $casts = [
+        'borrow_date' => 'datetime',
+        'return_date' => 'datetime',
+    ];
+
+    public function user()
     {
-        return $this->belongsTo(DataBorrow::class, 'data_borrow_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function book()

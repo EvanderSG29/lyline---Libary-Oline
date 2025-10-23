@@ -9,8 +9,9 @@
 
                 <div class="card-body">
                     @if (session('status'))
-                        <div class="alert alert-success" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert" id="success-alert">
                             {{ session('status') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
@@ -45,3 +46,16 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Auto-hide success alert after 8 seconds
+    setTimeout(function() {
+        const alert = document.getElementById('success-alert');
+        if (alert) {
+            alert.classList.remove('show');
+            setTimeout(() => alert.remove(), 150);
+        }
+    }, 8000);
+</script>
+@endpush

@@ -22,7 +22,12 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'image',
+        'position',
+        'active',
+        'no_hp',
+        'gender',
+        'class',
+        'type',
     ];
 
     /**
@@ -46,6 +51,22 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => \App\Enums\UserRole::class,
+            'active' => 'boolean',
         ];
+    }
+
+    public function getFormattedPhoneNumberAttribute()
+    {
+        return $this->no_hp ? '+62 ' . $this->no_hp : null;
+    }
+
+    public function dataBorrows()
+    {
+        return $this->hasMany(DataBorrow::class);
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
     }
 }

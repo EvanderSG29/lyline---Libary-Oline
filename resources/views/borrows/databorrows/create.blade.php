@@ -1,4 +1,4 @@
-@extends('layouts.home')
+@extends('layouts.main')
 
 @section('content')
 <div class="container">
@@ -25,8 +25,22 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="type" class="form-label">Type</label>
+                            <select name="type" id="type" class="form-control @error('type') is-invalid @enderror" required>
+                                <option value="">Select Type</option>
+                                <option value="User" {{ old('type') == 'User' ? 'selected' : '' }}>User</option>
+                                <option value="Teacher" {{ old('type') == 'Teacher' ? 'selected' : '' }}>Teacher</option>
+                                <option value="Staff" {{ old('type') == 'Staff' ? 'selected' : '' }}>Staff</option>
+                                <option value="Guest" {{ old('type') == 'Guest' ? 'selected' : '' }}>Guest</option>
+                            </select>
+                            @error('type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3" id="class-field" style="display: none;">
                             <label for="class" class="form-label">Class</label>
-                            <select name="class" id="class" class="form-control @error('class') is-invalid @enderror" required>
+                            <select name="class" id="class" class="form-control @error('class') is-invalid @enderror">
                                 <option value="">Select Class</option>
                                 <option value="X PPLG" {{ old('class') == 'X PPLG' ? 'selected' : '' }}>X PPLG</option>
                                 <option value="X PMN" {{ old('class') == 'X PMN' ? 'selected' : '' }}>X PMN</option>
@@ -41,8 +55,17 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label for="no_hp" class="form-label">Phone Number</label>
+                        <div class="mb-3" id="position-field" style="display: none;">
+                            <label for="position" class="form-label">Position</label>
+                            <input type="text" name="position" id="position" class="form-control @error('position') is-invalid @enderror" value="{{ old('position') }}" maxlength="255">
+                            @error('position')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="no_hp" class="form-label mb-1">Phone Number</label>
+                            <p class="form-text mb-1">Recommended format: 08XXXXXXXX (10 -13 digits / Number Local)</p>
                             <div class="input-group">
                                 <span class="input-group-text">+62</span>
                                 <input type="text" name="no_hp" id="no_hp" class="form-control @error('no_hp') is-invalid @enderror" value="{{ old('no_hp') }}" required pattern="^[0-9]{10,13}$" title="Phone number must be 10 to 13 digits." maxlength="13" inputmode="numeric" >
@@ -71,4 +94,26 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('type').addEventListener('change', function() {
+    const type = this.value;
+    const classField = document.getElementById('class-field');
+    const positionField = document.getElementById('position-field');
+    const classSelect = document.getElementById('class');
+    const positionInput = document.getElementById('position');
+
+    if (type === 'User') {
+        classField.style.display = 'block';
+        positionField.style.display = 'none';
+        classSelect.required = true;
+        positionInput.required = false;
+    } else {
+        classField.style.display = 'none';
+        positionField.style.display = 'block';
+        classSelect.required = false;
+        positionInput.required = true;
+    }
+});
+</script>
 @endsection

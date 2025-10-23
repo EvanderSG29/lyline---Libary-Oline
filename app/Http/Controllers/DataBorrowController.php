@@ -12,9 +12,37 @@ class DataBorrowController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $databorrows = DataBorrow::paginate(10);
+        $query = DataBorrow::query();
+
+        // Filter by type
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // Filter by position
+        if ($request->filled('position')) {
+            $query->where('position', $request->position);
+        }
+
+        // Search by name or identifier
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('identifier', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'id');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        $query->orderBy($sortBy, $sortDirection);
+
+        // Paginate
+        $databorrows = $query->paginate(10);
+
         return view('borrows.databorrows.index', compact('databorrows'));
     }
 
@@ -31,7 +59,13 @@ class DataBorrowController extends Controller
      */
     public function store(DataBorrowStoreRequest $request)
     {
-        DataBorrow::create($request->validated());
+        $validated = $request->validated();
+
+        if ($request->input('type') !== 'User') {
+            $validated['class'] = $validated['class'] ?? null; // Atau 'N/A' jika Anda ingin string
+        }
+
+        DataBorrow::create($validated);
         return redirect()->route('databorrows.index')->with('success', 'Borrower added successfully.');
     }
 
@@ -56,7 +90,13 @@ class DataBorrowController extends Controller
      */
     public function update(DataBorrowUpdateRequest $request, DataBorrow $databorrow)
     {
-        $databorrow->update($request->validated());
+        $validated = $request->validated();
+
+        if ($request->input('type') !== 'User') {
+            $validated['class'] = $validated['class'] ?? null;
+        }
+
+        $databorrow->update($validated);
         return redirect()->route('databorrows.index')->with('success', 'Borrower updated successfully.');
     }
 

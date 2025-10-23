@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -30,7 +29,6 @@ class ProfileController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $data = [
@@ -42,17 +40,7 @@ class ProfileController extends Controller
             $data['password'] = Hash::make($request->password);
         }
 
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($user->image && Storage::exists('public/images/' . $user->image)) {
-                Storage::delete('public/images/' . $user->image);
-            }
 
-            // Store new image
-            $imageName = time() . '.' . $request->image->extension();
-            $request->image->storeAs('public/images', $imageName);
-            $data['image'] = $imageName;
-        }
 
         $user->fill($data)->save();
 

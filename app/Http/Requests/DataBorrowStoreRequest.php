@@ -21,11 +21,19 @@ class DataBorrowStoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name_borrower' => 'required|string|max:60|regex:/^[a-zA-Z\s]+$/',
-            'class' => 'required|in:X PPLG,X PMN,X HTL,XI PPLG,XI PMN,XI HTL,XI TJKT',
+            'type' => 'required|in:User,Teacher,Staff,Guest',
             'no_hp' => 'required|regex:/^[0-9]{10,13}$/',
             'gender' => 'required|in:Male,Female',
         ];
+
+        if ($this->input('type') === 'User') {
+            $rules['class'] = 'required|in:X PPLG,X PMN,X HTL,XI PPLG,XI PMN,XI HTL,XI TJKT';
+        } else {
+            $rules['position'] = 'required|string|max:255';
+        }
+
+        return $rules;
     }
 }

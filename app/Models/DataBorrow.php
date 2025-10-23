@@ -13,13 +13,26 @@ class DataBorrow extends Model
 
     protected $fillable = [
         'name_borrower',
+        'type',
         'class',
+        'position',
         'no_hp',
         'gender',
+        'user_id',
     ];
 
     public function borrows()
     {
         return $this->hasMany(Borrow::class, 'data_borrow_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function getFormattedPhoneNumberAttribute()
+    {
+        return '+62 ' . $this->no_hp;
     }
 }

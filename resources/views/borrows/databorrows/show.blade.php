@@ -19,9 +19,20 @@
                             <td>{{ $databorrow->name_borrower }}</td>
                         </tr>
                         <tr>
+                            <th>Type</th>
+                            <td>{{ $databorrow->type }}</td>
+                        </tr>
+                        @if($databorrow->type === 'User')
+                        <tr>
                             <th>Class</th>
                             <td>{{ $databorrow->class }}</td>
                         </tr>
+                        @else
+                        <tr>
+                            <th>Position</th>
+                            <td>{{ $databorrow->position }}</td>
+                        </tr>
+                        @endif
                         <tr>
                             <th>Phone Number</th>
                             <td>{{ $databorrow->formatted_phone_number }}</td>

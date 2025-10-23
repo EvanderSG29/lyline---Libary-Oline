@@ -32,10 +32,21 @@
                         </div>
                         <div class="mb-3">
                             <label for="role">Role</label>
-                            <select name="role" class="form-control" required>
-                                <option value="user" {{ $user->role->value == 'user' ? 'selected' : '' }}>User</option>
-                                <option value="staff" {{ $user->role->value == 'staff' ? 'selected' : '' }}>Staff</option>
-                                <option value="admin" {{ $user->role->value == 'admin' ? 'selected' : '' }}>Admin</option>
+                            <select name="role" id="roleSelect" class="form-control" required>
+                                @foreach($allowedRoles as $role)
+                                <option value="{{ $role }}" {{ $user->role->value == $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3" id="positionField">
+                            <label for="position" id="positionLabel">{{ $user->role->value === 'staff' ? 'Position' : ($user->role->value === 'teacher' ? 'Subject' : ($user->role->value === 'student' ? 'Class' : 'Position')) }}</label>
+                            <input type="text" name="position" value="{{ $user->position }}" class="form-control" placeholder="Enter {{ $user->role->value === 'staff' ? 'position' : ($user->role->value === 'teacher' ? 'subject' : ($user->role->value === 'student' ? 'class' : 'position')) }}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="active">Active Status</label>
+                            <select name="active" class="form-control">
+                                <option value="1" {{ $user->active ? 'selected' : '' }}>Active</option>
+                                <option value="0" {{ !$user->active ? 'selected' : '' }}>Inactive</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Update</button>
@@ -45,4 +56,32 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.getElementById('roleSelect').addEventListener('change', function() {
+        const selectedRole = this.value;
+        const positionField = document.getElementById('positionField');
+        const positionLabel = document.getElementById('positionLabel');
+        const positionInput = document.querySelector('input[name="position"]');
+
+        if (selectedRole === 'staff' || selectedRole === 'teacher' || selectedRole === 'student') {
+            positionField.style.display = 'block';
+            if (selectedRole === 'staff') {
+                positionLabel.textContent = 'Position';
+                positionInput.placeholder = 'Enter position';
+            } else if (selectedRole === 'teacher') {
+                positionLabel.textContent = 'Subject';
+                positionInput.placeholder = 'Enter subject';
+            } else if (selectedRole === 'student') {
+                positionLabel.textContent = 'Class';
+                positionInput.placeholder = 'Enter class';
+            }
+        } else {
+            positionField.style.display = 'none';
+            positionInput.value = ''; // Clear the field if hidden
+        }
+    });
+</script>
 @endsection

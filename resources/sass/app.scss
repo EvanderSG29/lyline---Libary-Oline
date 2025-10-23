@@ -6,3 +6,16 @@
 
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
+a
+// Custom styles for table cells
+td {
+    white-space: nowrap;
+}
+
+td:last-child {
+    overflow: visible;
+}
+
+td:not(:last-child) {
+    overflow-x: auto;
+}

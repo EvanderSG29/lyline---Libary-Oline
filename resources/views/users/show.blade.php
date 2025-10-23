@@ -20,6 +20,11 @@
                     <div class="mb-3">
                         <strong>Role:</strong> {{ $user->role->value }}
                     </div>
+                    @if(in_array($user->role->value, ['staff', 'teacher']))
+                    <div class="mb-3">
+                        <strong>{{ $user->role->value === 'staff' ? 'Position' : 'Subject' }}:</strong> {{ $user->position ?: 'Not specified' }}
+                    </div>
+                    @endif
                     <div class="mb-3">
                         <strong>Email Verified At:</strong> {{ $user->email_verified_at ? $user->email_verified_at->format('Y-m-d H:i:s') : 'Not Verified' }}
                     </div>

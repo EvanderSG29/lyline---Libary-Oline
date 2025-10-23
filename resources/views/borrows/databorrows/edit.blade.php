@@ -26,8 +26,22 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="type" class="form-label">Type</label>
+                            <select name="type" id="type" class="form-control @error('type') is-invalid @enderror" required>
+                                <option value="">Select Type</option>
+                                <option value="User" {{ old('type', $databorrow->type) == 'User' ? 'selected' : '' }}>User</option>
+                                <option value="Teacher" {{ old('type', $databorrow->type) == 'Teacher' ? 'selected' : '' }}>Teacher</option>
+                                <option value="Staff" {{ old('type', $databorrow->type) == 'Staff' ? 'selected' : '' }}>Staff</option>
+                                <option value="Guest" {{ old('type', $databorrow->type) == 'Guest' ? 'selected' : '' }}>Guest</option>
+                            </select>
+                            @error('type')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3" id="class-field" style="{{ $databorrow->type == 'User' ? '' : 'display: none;' }}">
                             <label for="class" class="form-label">Class</label>
-                            <select name="class" id="class" class="form-control @error('class') is-invalid @enderror" required>
+                            <select name="class" id="class" class="form-control @error('class') is-invalid @enderror" {{ $databorrow->type == 'User' ? 'required' : '' }}>
                                 <option value="">Select Class</option>
                                 <option value="X PPLG" {{ old('class', $databorrow->class) == 'X PPLG' ? 'selected' : '' }}>X PPLG</option>
                                 <option value="X PMN" {{ old('class', $databorrow->class) == 'X PMN' ? 'selected' : '' }}>X PMN</option>
@@ -38,6 +52,14 @@
                                 <option value="XI TJKT" {{ old('class', $databorrow->class) == 'XI TJKT' ? 'selected' : '' }}>XI TJKT</option>
                             </select>
                             @error('class')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3" id="position-field" style="{{ $databorrow->type != 'User' ? '' : 'display: none;' }}">
+                            <label for="position" class="form-label">Position</label>
+                            <input type="text" name="position" id="position" class="form-control @error('position') is-invalid @enderror" value="{{ old('position', $databorrow->position) }}" maxlength="255" {{ $databorrow->type != 'User' ? 'required' : '' }}>
+                            @error('position')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -72,4 +94,26 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('type').addEventListener('change', function() {
+    const type = this.value;
+    const classField = document.getElementById('class-field');
+    const positionField = document.getElementById('position-field');
+    const classSelect = document.getElementById('class');
+    const positionInput = document.getElementById('position');
+
+    if (type === 'User') {
+        classField.style.display = 'block';
+        positionField.style.display = 'none';
+        classSelect.required = true;
+        positionInput.required = false;
+    } else {
+        classField.style.display = 'none';
+        positionField.style.display = 'block';
+        classSelect.required = false;
+        positionInput.required = true;
+    }
+});
+</script>
 @endsection
