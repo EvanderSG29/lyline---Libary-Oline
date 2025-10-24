@@ -50,6 +50,7 @@ class HomeController extends Controller
 
             // Recent borrows
             $recentBorrows = Borrow::with(['dataBorrow', 'book'])
+                ->whereNotNull('data_borrow_id')
                 ->latest()
                 ->take(5)
                 ->get()
@@ -120,6 +121,7 @@ class HomeController extends Controller
             // Current borrowers
             $currentBorrowers = Borrow::with(['dataBorrow', 'book'])
                 ->where('status', 'borrowed')
+                ->whereNotNull('data_borrow_id')
                 ->latest('borrow_date')
                 ->take(10)
                 ->get();

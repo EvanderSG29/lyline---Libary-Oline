@@ -32,4 +32,9 @@ class Borrow extends Model
     {
         return $this->belongsTo(Book::class);
     }
+
+    public function dataBorrow()
+    {
+        return $this->belongsTo(DataBorrow::class, 'data_borrow_id');
+    }
 }

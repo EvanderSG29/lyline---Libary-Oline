@@ -104,18 +104,18 @@
                     <!-- Sidebar -->
                     <nav class="bg-dark text-white p-3 d-flex flex-column position-fixed" style="width: 250px; height: 100vh; overflow-y: auto;">
                         <div>
-                            <h5 class="text-center mb-4">Lyline Admin Panel</h5>
+                            <h5 class="text-center mb-4">{{ __('Lyline Admin Panel') }}</h5>
                             <ul class="nav flex-column">
                                 <li class="nav-item mb-2">
-                                    <a class="nav-link text-white" href="{{ route('home') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                                    <a class="nav-link text-white" href="{{ route('home') }}"><i class="bi bi-speedometer2 me-2"></i>{{ __('Dashboard') }}</a>
                                 </li>
                                 <li class="nav-item mb-2">
-                                    <a class="nav-link text-white" href="{{ route('users.index') }}"><i class="bi bi-people-fill me-2"></i>Manage Users</a>
+                                    <a class="nav-link text-white" href="{{ route('users.index') }}"><i class="bi bi-people-fill me-2"></i>{{ __('Manage Users') }}</a>
                                 </li>
                                 <!-- Books Management with Submenu -->
                                 <li class="nav-item mb-2">
                                     <a class="nav-link text-white" href="#booksSubmenu" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="booksSubmenu">
-                                        <i class="bi bi-book-half me-2"></i>Book Management
+                                        <i class="bi bi-book-half me-2"></i>{{ __('Book Management') }}
                                     </a>
                                     <div class="collapse {{ (Request::is('books*') || Request::is('categories*')) ? 'show' : '' }}" id="booksSubmenu">
                                         <ul class="nav flex-column ms-3">
@@ -248,6 +248,9 @@
 
                                 <!-- Page-specific actions (Right) -->
                                 <div class="d-flex align-items-center">
+                                    @include('partials.settings')
+
+                                    <!-- Notifications Dropdown -->
                                     <div class="dropdown me-3">
                                         <button id="notif-btn" class="btn btn-light notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifikasi">
                                             <i class="bi bi-bell fs-4"></i>
@@ -298,18 +301,18 @@
                     <!-- Sidebar -->
                     <nav class="bg-dark text-white p-3 d-flex flex-column position-fixed" style="width: 250px; height: 100vh; overflow-y: auto;">
                         <div>
-                            <h5 class="text-center mb-4">Lyline Staff Panel</h5>
+                            <h5 class="text-center mb-4">{{ __('Lyline Staff Panel') }}</h5>
                             <ul class="nav flex-column">
                                 <li class="nav-item mb-2">
-                                    <a class="nav-link text-white" href="{{ route('home') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                                    <a class="nav-link text-white" href="{{ route('home') }}"><i class="bi bi-speedometer2 me-2"></i>{{ __('Dashboard') }}</a>
                                 </li>
                                 <li class="nav-item mb-2">
-                                    <a class="nav-link text-white" href="{{ route('users.index') }}"><i class="bi bi-people-fill me-2"></i>Manage Users</a>
+                                    <a class="nav-link text-white" href="{{ route('users.index') }}"><i class="bi bi-people-fill me-2"></i>{{ __('Manage Users') }}</a>
                                 </li>
                                 <!-- Books Management with Submenu -->
                                 <li class="nav-item mb-2">
                                     <a class="nav-link text-white" href="#booksSubmenu" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="booksSubmenu">
-                                        <i class="bi bi-book-half me-2"></i>Book Management
+                                        <i class="bi bi-book-half me-2"></i>{{ __('Book Management') }}
                                     </a>
                                     <div class="collapse {{ (Request::is('books*') || Request::is('categories*')) ? 'show' : '' }}" id="booksSubmenu">
                                         <ul class="nav flex-column ms-3">
@@ -491,7 +494,7 @@
                     <!-- Sidebar -->
                     <nav class="bg-dark text-white p-3 d-flex flex-column position-fixed" style="width: 250px; height: 100vh; overflow-y: auto;">
                         <div>
-                            <h5 class="text-center mb-4">Lyline User Panel</h5>
+                            <h5 class="text-center mb-4">{{ __('Lyline User Panel') }}</h5>
                             <ul class="nav flex-column">
                                 <li class="nav-item mb-2">
                                     <a class="nav-link text-white" href="{{ route('home') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>

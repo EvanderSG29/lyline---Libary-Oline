@@ -86,6 +86,7 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
+        $book->load(['stockLogs.user']);
         return view('books.show', compact('book'));
     }
 

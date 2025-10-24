@@ -92,11 +92,24 @@
                                     <ul class="list-group">
                                         @foreach($book->stockLogs->sortByDesc('created_at') as $log)
                                             <li class="list-group-item">
-                                                <strong>{{ $log->user->name }}</strong> {{ $log->action }} {{ $log->change_amount }} stock
-                                                ({{ $log->previous_stock }} → {{ $log->new_stock }})
-                                                <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
-                                                @if($log->notes)
-                                                    <br><em>{{ $log->notes }}</em>
+                                                @if($log->action === 'borrowed')
+                                                    <strong>{{ $log->user->name }}</strong> lent books to {{ $book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first() ? ($book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->dataBorrow ? $book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->dataBorrow->name_borrower : ($book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->user ? $book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->user->name : 'N/A')) : 'N/A' }}
+                                                    <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
+                                                    <br><em>Remaining stock: {{ $log->new_stock }} of {{ $log->previous_stock }}</em>
+                                                    <br><em>Status: Lending books</em>
+                                                    <br><em>Book borrowed by {{ $book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first() ? ($book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->dataBorrow ? $book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->dataBorrow->name_borrower : ($book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->user ? $book->borrows->where('created_at', '>=', $log->created_at)->where('created_at', '<=', $log->created_at->copy()->addSecond())->first()->user->name : 'N/A')) : 'N/A' }}</em>
+                                                @elseif($log->action === 'returned')
+                                                    <strong>{{ $log->user->name }}</strong> received book return from {{ $book->borrows->where('updated_at', '>=', $log->created_at)->where('updated_at', '<=', $log->created_at->copy()->addSecond())->first() ? ($book->borrows->where('updated_at', '>=', $log->created_at)->where('updated_at', '<=', $log->created_at->copy()->addSecond())->first()->dataBorrow ? $book->borrows->where('updated_at', '>=', $log->created_at)->where('updated_at', '<=', $log->created_at->copy()->addSecond())->first()->dataBorrow->name_borrower : ($book->borrows->where('updated_at', '>=', $log->created_at)->where('updated_at', '<=', $log->created_at->copy()->addSecond())->first()->user ? $book->borrows->where('updated_at', '>=', $log->created_at)->where('updated_at', '<=', $log->created_at->copy()->addSecond())->first()->user->name : 'N/A')) : 'N/A' }}
+                                                    <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
+                                                    <br><em>Remaining stock: {{ $log->new_stock }} of {{ $log->previous_stock }}</em>
+                                                    <br><em>Status: Book returned</em>
+                                                @else
+                                                    <strong>{{ $log->user->name }}</strong> {{ $log->action }} {{ $log->change_amount }} stock
+                                                    ({{ $log->previous_stock }} → {{ $log->new_stock }})
+                                                    <small class="text-muted">{{ $log->created_at->diffForHumans() }}</small>
+                                                    @if($log->notes)
+                                                        <br><em>{{ $log->notes }}</em>
+                                                    @endif
                                                 @endif
                                             </li>
                                         @endforeach
@@ -113,7 +126,7 @@
                                     <ul class="list-group">
                                         @foreach($book->borrows->sortByDesc('created_at') as $borrow)
                                             <li class="list-group-item">
-                                                <strong>{{ $borrow->dataBorrow->name_borrower }}</strong> borrowed
+                                                <strong>{{ $borrow->dataBorrow ? $borrow->dataBorrow->name_borrower : ($borrow->user ? $borrow->user->name : 'N/A') }}</strong> borrowed
                                                 <small class="text-muted">{{ $borrow->created_at->diffForHumans() }}</small>
                                                 @if($borrow->status === 'returned')
                                                     <br><em>Returned: {{ $borrow->updated_at->format('d M Y H:i') }}</em>

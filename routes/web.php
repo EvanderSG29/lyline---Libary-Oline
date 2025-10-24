@@ -63,6 +63,13 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+// Settings routes
+Route::get('/settings', [App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index')->middleware('auth');
+Route::post('/settings', [App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update')->middleware('auth');
+
+// Language switching route
+Route::post('/language/switch', [App\Http\Controllers\LanguageController::class, 'switchLanguage'])->name('language.switch')->middleware('auth');
+
 // Notification routes
 Route::middleware('auth')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
