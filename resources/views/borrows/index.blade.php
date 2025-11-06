@@ -1,6 +1,9 @@
 @extends('layouts.main')
 
 @section('content')
+@push('head')
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@endpush
 <div class="container">
     <!-- Hidden Filter Card -->
     <div id="filterCard" style="display: none;" class="mb-4">
@@ -21,6 +24,8 @@
                                 <option value="">All Status</option>
                                 <option value="borrowed" {{ request('status') == 'borrowed' ? 'selected' : '' }}>Borrowed</option>
                                 <option value="returned" {{ request('status') == 'returned' ? 'selected' : '' }}>Returned</option>
+                                <option value="approaching" {{ request('status') == 'approaching' ? 'selected' : '' }}>Approaching Deadline</option>
+                                <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -95,17 +100,30 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label for="borrow_date" class="form-label"><strong>Borrow Date:</strong></label>
-                                    <input type="date" name="borrow_date" class="form-control" required>
+                                    <input type="date" name="borrow_date" class="form-control" value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" readonly required>
                                 </div>
                                 <div class="col-md-3">
                                     <label for="return_date" class="form-label"><strong>Return Date:</strong></label>
                                     <input type="date" name="return_date" class="form-control" required>
                                 </div>
 
+                                <div class="col-md-12 mt-3" id="timeInputs" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="borrowed_at" class="form-label"><strong>Borrowed at:</strong></label>
+                                            <input type="time" name="borrowed_at" class="form-control" value="09:00">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="returned_at" class="form-label"><strong>Returned at:</strong></label>
+                                            <input type="time" name="returned_at" class="form-control" value="14:00">
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-12 mt-3 d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary me-2">Save</button>
                                     <button type="button" class="btn btn-secondary" id="cancelCreate">Cancel</button>
-                                </div>
+                                </div>  
                             </div>
                         </form>
                     </div>
@@ -128,24 +146,44 @@
                                 <th>Book Title</th>
                                 <th>Return Date</th>
                                 <th>Status</th>
-                                <th>Created At</th>
-                                <th>Updated At</th>
+                                <th>Note</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             @php $i = 0; @endphp
                             @forelse($borrows as $borrow)
-                                <tr>
+                                <tr class="status-{{ $borrow->status_color }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $borrow->status_details }}">
                                     <td><input type="checkbox" class="borrow-checkbox" value="{{ $borrow->id }}"></td>
                                     <td>{{ ++$i }}</td>
-                                    <td>{{ $borrow->borrow_date }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($borrow->borrow_date)->format('Y-m-d') }}</td>
                                     <td>{{ $borrow->user->name }}</td>
                                     <td>{{ $borrow->book->title_book }}</td>
-                                    <td>{{ $borrow->return_date ?? 'Not returned' }}</td>
-                                    <td>{{ $borrow->status }}</td>
-                                    <td>{{ $borrow->created_at->format('d M Y H:i') }}</td>
-                                    <td>{{ $borrow->updated_at->format('d M Y H:i') }}</td>
+                                    <td>{{ $borrow->return_date ? \Carbon\Carbon::parse($borrow->return_date)->format('Y-m-d') : 'Not returned' }}</td>
+                                    <td class="status-column">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <i class="bi bi-{{ $borrow->status_icon }}" aria-hidden="true"></i>
+                                                {{ ucfirst($borrow->status) }}
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item status-option" href="#" data-borrow-id="{{ $borrow->id }}" data-status="borrowed">Borrowed</a></li>
+                                                <li><a class="dropdown-item status-option" href="#" data-borrow-id="{{ $borrow->id }}" data-status="returned">Returned</a></li>
+                                            </ul>
+                                        </div>
+                                        <span class="visually-hidden">{{ $borrow->status_details }}</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted fst-italic">
+                                            @if($borrow->status == 'borrowed' && $borrow->return_date && $borrow->return_date < now())
+                                                Past the loan period
+                                            @elseif($borrow->status == 'returned')
+                                                Book has been returned
+                                            @else
+                                                Still within loan period
+                                            @endif
+                                        </small>
+                                    </td>
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -166,7 +204,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center">No data available</td>
+                                    <td colspan="11" class="text-center">No data available</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -183,6 +221,12 @@
 
 @push('scripts')
 <script>
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
     // Toggle filter card functionality
     document.addEventListener('DOMContentLoaded', function() {
         const toggleFilterBtn = document.getElementById('toggleFilterCard');
@@ -269,6 +313,61 @@
         createForm.classList.add('d-none');
         toggleCreateFormBtn.textContent = '+ Add Borrower';
         borrowForm.reset();
+    });
+
+    // Show/hide time inputs based on borrow and return dates
+    const borrowDateInput = document.querySelector('input[name="borrow_date"]');
+    const returnDateInput = document.querySelector('input[name="return_date"]');
+    const timeInputs = document.getElementById('timeInputs');
+
+    function checkDates() {
+        if (borrowDateInput.value && returnDateInput.value && borrowDateInput.value === returnDateInput.value) {
+            timeInputs.style.display = 'block';
+        } else {
+            timeInputs.style.display = 'none';
+        }
+    }
+
+    // Check on input for real-time validation
+    borrowDateInput.addEventListener('input', checkDates);
+    returnDateInput.addEventListener('input', checkDates);
+
+    // Also check on change for compatibility
+    borrowDateInput.addEventListener('change', checkDates);
+    returnDateInput.addEventListener('change', checkDates);
+
+    // Initial check in case dates are pre-filled
+    checkDates();
+
+    // Handle status change via AJAX
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('status-option')) {
+            e.preventDefault();
+            const borrowId = e.target.getAttribute('data-borrow-id');
+            const newStatus = e.target.getAttribute('data-status');
+
+            fetch(`/borrows/${borrowId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page to update colors and status
+                    location.reload();
+                } else {
+                    alert('Error updating status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating the status.');
+            });
+        }
     });
 </script>
 @endpush

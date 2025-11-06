@@ -24,12 +24,24 @@
                         </tr>
                         <tr>
                             <th>Borrow Date</th>
-                            <td>{{ $borrow->borrow_date }}</td>
+                            <td>{{ \Carbon\Carbon::parse($borrow->borrow_date)->format('Y-m-d') }}</td>
                         </tr>
+                        @if($borrow->return_date && \Carbon\Carbon::parse($borrow->borrow_date)->format('Y-m-d') === \Carbon\Carbon::parse($borrow->return_date)->format('Y-m-d'))
+                        <tr>
+                            <th>Borrowed at</th>
+                            <td>{{ $borrow->borrowed_at ?? 'Not specified' }}</td>
+                        </tr>
+                        @endif
                         <tr>
                             <th>Return Date</th>
-                            <td>{{ $borrow->return_date ?? 'Not returned' }}</td>
+                            <td>{{ $borrow->return_date ? \Carbon\Carbon::parse($borrow->return_date)->format('Y-m-d') : 'Not returned' }}</td>
                         </tr>
+                        @if($borrow->return_date && \Carbon\Carbon::parse($borrow->borrow_date)->format('Y-m-d') === \Carbon\Carbon::parse($borrow->return_date)->format('Y-m-d'))
+                        <tr>
+                            <th>Returned at</th>
+                            <td>{{ $borrow->returned_at ?? 'Not returned' }}</td>
+                        </tr>
+                        @endif
                         <tr>
                             <th>Status</th>
                             <td>{{ $borrow->status }}</td>
@@ -60,7 +72,7 @@
                             <!-- Update Logs -->
                             <div class="log-section" data-type="updates">
                                 <h6>Update History</h6>
-                                @if($borrow->audits->count() > 0)
+                                @if($borrow->audits && $borrow->audits->count() > 0)
                                     <ul class="list-group">
                                         @foreach($borrow->audits->sortByDesc('created_at') as $audit)
                                             <li class="list-group-item">
@@ -80,7 +92,7 @@
                             <!-- Stock Logs for the Book -->
                             <div class="log-section" data-type="stock">
                                 <h6>Stock Changes for "{{ $borrow->book->title_book }}"</h6>
-                                @if($borrow->book->stockLogs->count() > 0)
+                                @if($borrow->book->stockLogs && $borrow->book->stockLogs->count() > 0)
                                     <ul class="list-group">
                                         @foreach($borrow->book->stockLogs->sortByDesc('created_at') as $log)
                                             <li class="list-group-item">
@@ -101,7 +113,7 @@
                             <!-- Borrow Logs for the Book -->
                             <div class="log-section" data-type="borrows">
                                 <h6>Borrowing History for "{{ $borrow->book->title_book }}"</h6>
-                                @if($borrow->book->borrows->count() > 0)
+                                @if($borrow->book->borrows && $borrow->book->borrows->count() > 0)
                                     <ul class="list-group">
                                         @foreach($borrow->book->borrows->sortByDesc('created_at') as $bookBorrow)
                                             <li class="list-group-item {{ $bookBorrow->id === $borrow->id ? 'list-group-item-primary' : '' }}">

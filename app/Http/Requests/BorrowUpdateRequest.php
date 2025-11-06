@@ -26,6 +26,8 @@ class BorrowUpdateRequest extends FormRequest
             'book_id' => ['required', 'exists:books,id'],
             'borrow_date' => ['required', 'date'],
             'return_date' => ['nullable', 'date', 'after_or_equal:borrow_date'],
+            'borrowed_at' => ['nullable', 'date_format:H:i'],
+            'returned_at' => ['nullable', 'date_format:H:i'],
             'status' => ['required', 'in:borrowed,returned'],
         ];
     }

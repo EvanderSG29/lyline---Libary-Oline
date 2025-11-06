@@ -51,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('books-bulk-update-stock', [App\Http\Controllers\BookController::class, 'bulkUpdateStock'])->name('books.bulkUpdateStock');
         Route::delete('books-bulk-delete', [App\Http\Controllers\BookController::class, 'bulkDelete'])->name('books.bulkDelete');
         Route::resource('borrows', App\Http\Controllers\BorrowController::class)->middleware('staff');
+        Route::patch('borrows/{borrow}/status', [App\Http\Controllers\BorrowController::class, 'updateStatus'])->name('borrows.updateStatus')->middleware('staff');
         Route::resource('categories', App\Http\Controllers\CategoryController::class);
         Route::post('categories-bulk-delete', [App\Http\Controllers\CategoryController::class, 'bulkDelete'])->name('categories.bulkDelete');
         Route::resource('databorrows', App\Http\Controllers\DataBorrowController::class);

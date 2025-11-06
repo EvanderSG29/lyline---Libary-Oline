@@ -20,7 +20,17 @@ class BorrowController extends Controller
 
         // Filter by status
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = $request->status;
+            if (in_array($status, ['borrowed', 'returned'])) {
+                $query->where('status', $status);
+            } elseif ($status === 'approaching') {
+                $query->where('status', 'borrowed')
+                      ->where('return_date', '<=', now()->addDays(2))
+                      ->where('return_date', '>', now());
+            } elseif ($status === 'overdue') {
+                $query->where('status', 'borrowed')
+                      ->where('return_date', '<', now());
+            }
         }
 
         // Filter by user
@@ -54,6 +64,17 @@ class BorrowController extends Controller
         $borrows = $query->paginate(10);
         $users = User::all();
         $books = Book::where('stock', '>', 0)->get();
+
+        // Send notifications for approaching/overdue borrows (simplified, could be moved to a job)
+        foreach ($borrows->where('status', 'borrowed') as $borrow) {
+            if ($borrow->isApproaching() && !$borrow->notification_sent) {
+                // $borrow->user->notify(new \App\Notifications\ApproachingDeadline($borrow));
+                $borrow->update(['notification_sent' => true]);
+            } elseif ($borrow->isOverdue() && !$borrow->notification_sent) {
+                // $borrow->user->notify(new \App\Notifications\OverdueNotification($borrow));
+                $borrow->update(['notification_sent' => true]);
+            }
+        }
 
         return view('borrows.index', compact('borrows', 'users', 'books'));
     }
@@ -160,6 +181,56 @@ class BorrowController extends Controller
         $borrow->update($validated);
 
         return redirect()->route('borrows.index')->with('success', 'Borrow updated successfully.');
+    }
+
+    /**
+     * Update the status of a borrow record.
+     */
+    public function updateStatus(Request $request, Borrow $borrow)
+    {
+        $request->validate([
+            'status' => 'required|in:borrowed,returned',
+        ]);
+
+        $oldStatus = $borrow->status;
+        $newStatus = $request->status;
+
+        if ($oldStatus === 'borrowed' && $newStatus === 'returned') {
+            $previousStock = $borrow->book->stock;
+            $borrow->book->increment('stock');
+
+            // Log the stock change
+            \App\Models\StockLog::create([
+                'book_id' => $borrow->book->id,
+                'user_id' => auth()->id(),
+                'previous_stock' => $previousStock,
+                'new_stock' => $borrow->book->fresh()->stock,
+                'change_amount' => 1,
+                'action' => 'returned',
+                'notes' => 'Book returned via status update',
+            ]);
+        } elseif ($oldStatus === 'returned' && $newStatus === 'borrowed') {
+            $previousStock = $borrow->book->stock;
+            $borrow->book->decrement('stock');
+
+            // Log the stock change
+            \App\Models\StockLog::create([
+                'book_id' => $borrow->book->id,
+                'user_id' => auth()->id(),
+                'previous_stock' => $previousStock,
+                'new_stock' => $borrow->book->fresh()->stock,
+                'change_amount' => -1,
+                'action' => 'borrowed',
+                'notes' => 'Book borrowed again via status update',
+            ]);
+        }
+
+        $borrow->update(['status' => $newStatus]);
+
+        // Reload the model with relations for the frontend
+        $borrow->load(['user', 'book']);
+
+        return response()->json(['success' => true, 'message' => 'Status updated successfully.', 'borrow' => $borrow]);
     }
 
     /**

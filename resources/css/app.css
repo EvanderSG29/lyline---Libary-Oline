@@ -9,3 +9,96 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/* Status row colors for lending table */
+.status-blue {
+    background-color: #e7f3ff; /* Light blue background */
+    border-left: 5px solid #007bff; /* Blue left border */
+}
+
+.status-green {
+    background-color: #e8f5e8; /* Light green background */
+    border-left: 5px solid #28a745; /* Green left border */
+}
+
+.status-orange {
+    background-color: #fff3cd; /* Light orange background */
+    border-left: 5px solid #fd7e14; /* Orange left border */
+}
+
+.status-red {
+    background-color: #f8d7da; /* Light red background */
+    border-left: 5px solid #dc3545; /* Red left border */
+}
+
+/* Patterns for color vision impairments */
+.status-blue::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0, 123, 255, 0.1) 5px, rgba(0, 123, 255, 0.1) 10px);
+    pointer-events: none;
+}
+
+.status-green::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(40, 167, 69, 0.1) 5px, rgba(40, 167, 69, 0.1) 10px);
+    pointer-events: none;
+}
+
+.status-orange::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(253, 126, 20, 0.1) 5px, rgba(253, 126, 20, 0.1) 10px);
+    pointer-events: none;
+}
+
+.status-red::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(220, 53, 69, 0.1) 5px, rgba(220, 53, 69, 0.1) 10px);
+    pointer-events: none;
+}
+
+/* Ensure table rows have relative positioning for patterns */
+.table tbody tr {
+    position: relative;
+}
+
+/* Make table positioned for dropdown positioning */
+.table {
+    position: relative;
+}
+
+/* Ensure dropdown menus are visible above table content */
+.dropdown-menu {
+    z-index: 1050;
+}
+
+/* Make status column dropdown appear as popup */
+.table td.status-column .dropdown-menu {
+    position: fixed !important;
+    z-index: 1050;
+}
+
+/* Allow status column dropdown to overflow outside table cell */
+.table td.status-column {
+    overflow: visible;
+    position: relative;
+}
