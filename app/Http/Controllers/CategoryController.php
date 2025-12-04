@@ -19,17 +19,6 @@ class CategoryController extends Controller
     {
         $query = Category::query();
 
-        // Search by category name
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where('category', 'like', "%{$search}%");
-        }
-
-        // Sort
-        $sortBy = $request->get('sort_by', 'id');
-        $sortDirection = $request->get('sort_direction', 'asc');
-        $query->orderBy($sortBy, $sortDirection);
-
         // Paginate
         $categories = $query->paginate(10);
 
@@ -37,13 +26,7 @@ class CategoryController extends Controller
             ->with('i', ($categories->currentPage() - 1) * $categories->perPage());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('books.categories.create');
-    }
+
 
     /**
      * Store a newly created resource in storage.
@@ -96,21 +79,4 @@ class CategoryController extends Controller
             ->with('success', 'Category deleted successfully.');
     }
 
-    /**
-     * Bulk delete categories.
-     */
-    public function bulkDelete(Request $request)
-    {
-        $categoryIds = $request->input('category_ids', []);
-
-        if (empty($categoryIds)) {
-            return redirect()->route('categories.index')
-                ->with('error', 'No categories selected for deletion.');
-        }
-
-        Category::whereIn('id', $categoryIds)->delete();
-
-        return redirect()->route('categories.index')
-            ->with('success', count($categoryIds) . ' categories deleted successfully.');
-    }
 }

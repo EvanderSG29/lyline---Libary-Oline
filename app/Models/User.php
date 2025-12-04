@@ -5,12 +5,11 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -18,16 +17,13 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'password',
         'role',
-        'position',
-        'active',
         'no_hp',
         'gender',
-        'class',
-        'type',
     ];
 
     /**
@@ -51,7 +47,6 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => \App\Enums\UserRole::class,
-            'active' => 'boolean',
         ];
     }
 
@@ -60,13 +55,4 @@ class User extends Authenticatable
         return $this->no_hp ? '+62 ' . $this->no_hp : null;
     }
 
-    public function dataBorrows()
-    {
-        return $this->hasMany(DataBorrow::class);
-    }
-
-    public function bookings()
-    {
-        return $this->hasMany(Booking::class);
-    }
 }

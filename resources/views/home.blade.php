@@ -8,14 +8,41 @@
 @if($user->role === App\Enums\UserRole::Admin)
     <!-- Admin Dashboard -->
     <div class="container-fluid">
-        <div class="row mb-4">
+
+        <!-- Quick Actions -->
+        <div class="row">
             <div class="col-12">
-                <h1 class="h3 mb-4 text-primary">
-                    <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
-                </h1>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ route('books.create') }}" class="btn btn-primary w-100">
+                                    <i class="bi bi-plus-circle me-2"></i>Add Book
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ route('users.create') }}" class="btn btn-success w-100">
+                                    <i class="bi bi-person-plus me-2"></i>Add User
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ route('borrows.index') }}" class="btn btn-warning w-100">
+                                    <i class="bi bi-arrow-left-right me-2"></i>Manage Borrows
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ route('bookings.index') }}" class="btn btn-info w-100">
+                                    <i class="bi bi-calendar-check me-2"></i>Manage Bookings
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
         <!-- Statistics Cards -->
         <div class="row mb-4">
             <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
@@ -99,7 +126,7 @@
         </div>
 
         <!-- Charts and Activities -->
-        <div class="row">
+        <div class="row mb-4">
             <div class="col-lg-8 mb-4">
                 <div class="card">
                     <div class="card-header">
@@ -139,40 +166,7 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Quick Actions</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('books.create') }}" class="btn btn-primary w-100">
-                                    <i class="bi bi-plus-circle me-2"></i>Add Book
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('users.create') }}" class="btn btn-success w-100">
-                                    <i class="bi bi-person-plus me-2"></i>Add User
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('borrows.index') }}" class="btn btn-warning w-100">
-                                    <i class="bi bi-arrow-left-right me-2"></i>Manage Borrows
-                                </a>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <a href="{{ route('bookings.index') }}" class="btn btn-info w-100">
-                                    <i class="bi bi-calendar-check me-2"></i>Manage Bookings
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 
 @elseif($user->role === App\Enums\UserRole::Staff)
@@ -488,40 +482,3 @@
 @endif
 @endsection
 
-@push('scripts')
-@if($user->role === App\Enums\UserRole::Admin && isset($monthlyBorrows))
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('borrowingChart').getContext('2d');
-        const monthlyBorrows = @json($monthlyBorrows);
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: monthlyBorrows.map(item => item.month),
-                datasets: [{
-                    label: 'Borrowings',
-                    data: monthlyBorrows.map(item => item.count),
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Monthly Borrowing Trends'
-                    }
-                }
-            }
-        });
-    });
-</script>
-@endif
-@endpush

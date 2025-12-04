@@ -53,10 +53,6 @@ class LoginController extends Controller
             return redirect()->route('home')->with('success', 'Logged in successfully.');
         }
 
-        if ($user->role === UserRole::Staff) {
-            return redirect()->route('home')->with('success', 'Logged in successfully.');
-        }
-
         return redirect()->route('home')->with('success', 'Logged in successfully.');
     }
 }

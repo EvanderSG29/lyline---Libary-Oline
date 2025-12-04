@@ -3,17 +3,17 @@
 @section('title', 'Lyline | Sign In')
 
 @section('content')
-<div class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);">
+<div class="d-flex align-items-center">
     <div class="container">
         <div class="row justify-content-center align-items-center">
             <!-- Left Side -->
-            <div class="col-lg-5 col-md-8 mb-5 mb-lg-0 ">
+            <div class="col-lg-5 col-md-12 mb-5 mb-lg-0 ">
                 <h2 class="text-primary fw-bold mb-3">Welcome Back to Lyline</h2>
                 <p class="text-muted fs-5 mb-4">Enjoy the convenience of reading and borrowing digital books anytime.</p>              
             </div>
 
             <!-- Right Side - Login Form -->
-            <div class="col-lg-5 col-md-8">
+            <div class="col-lg-5 col-md-12">
                 <div class="card shadow-lg border-0 rounded-3">
                     <div class="card-body p-5">
                         <!-- Logo -->
@@ -60,7 +60,7 @@
                             </div>
 
                             <!-- Remember Me & Forgot Password -->
-                            <div class="d-flex justify-content-between align-items-center mb-4">
+                            {{-- <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="remember">
@@ -72,7 +72,7 @@
                                         {{ __('Forgot Password?') }}
                                     </a>
                                 @endif
-                            </div>
+                            </div> --}}
 
                             <!-- Login Button -->
                             <div class="d-grid">

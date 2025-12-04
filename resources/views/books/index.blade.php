@@ -2,48 +2,6 @@
 
 @section('content')
 <div class="container">
-    <!-- Filter Card -->
-    <div class="mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                {{ __('Filters') }}
-                <button type="button" class="btn btn-sm btn-outline-secondary" id="toggleFilterCard">
-                    <i class="bi bi-chevron-up"></i>
-                </button>
-            </div>
-            <div class="card-body" id="filterBody">
-                <form method="GET" action="{{ route('books.index') }}" class="row g-3">
-                    <div class="col-md-4">
-                        <label for="search" class="form-label">Search</label>
-                        <input type="text" name="search" id="search" class="form-control" placeholder="Search by title, author, or category" value="{{ request('search') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="category" class="form-label">Category</label>
-                        <select name="category" id="category" class="form-select">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->category }}" {{ request('category') == $cat->category ? 'selected' : '' }}>{{ $cat->category }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label for="stock_filter" class="form-label">Stock Filter</label>
-                        <select name="stock_filter" id="stock_filter" class="form-select">
-                            <option value="">All</option>
-                            <option value="available" {{ request('stock_filter') == 'available' ? 'selected' : '' }}>Available</option>
-                            <option value="low" {{ request('stock_filter') == 'low' ? 'selected' : '' }}>Low Stock (<5)</option>
-                            <option value="out" {{ request('stock_filter') == 'out' ? 'selected' : '' }}>Out of Stock</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary me-2">Filter</button>
-                        <a href="{{ route('books.index') }}" class="btn btn-secondary">Clear</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -54,7 +12,7 @@
                             + Add Book
                         </button>
                         <a href="{{ route('categories.index') }}" class="btn btn-secondary">+ Add Category</a>
-                        <a href="{{ route('books.export') }}" class="btn btn-success">Export CSV</a>
+                        {{-- <a href="{{ route('books.export') }}" class="btn btn-success">Export CSV</a> --}}
                     </div>
                 </div>
 
@@ -164,38 +122,13 @@
                             @php $i = 0; @endphp
                             @forelse ($books as $book)
                                 <tr class="{{ $book->stock < 5 ? 'table-warning' : '' }}">
-                                    <td>
-                                        <div class="form-check">
-                                            <input class="form-check-input book-checkbox" type="checkbox" value="{{ $book->id }}">
-                                        </div>
-                                    </td>
+
                                     <td width="80px">{{ ++$i }}</td>
                                     <td>{{ $book->title_book }}</td>
                                     <td>{{ $book->author }}</td>
                                     <td>{{ $book->publisher }}</td>
                                     <td>{{ $book->category }}</td>
-                                    <td class="stock-cell" data-book-id="{{ $book->id }}" style="cursor: pointer; position: relative;">
-                                        {{ $book->stock }}
-                                        <div class="stock-popover" id="stockPopover{{ $book->id }}" style="display: none; position: absolute; background: white; border: 1px solid #ccc; padding: 10px; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                                            <div class="mb-2">
-                                                <strong>Add Stock</strong>
-                                            </div>
-                                            <form action="{{ route('books.addStock', $book->id) }}" method="POST" class="d-inline mb-3">
-                                                @csrf
-                                                <input type="number" name="additional_stock" class="form-control form-control-sm mb-2" placeholder="Enter amount" min="1" required style="width: 100px;">
-                                                <button type="submit" class="btn btn-primary btn-sm">Add</button>
-                                            </form>
-
-                                            <div class="mb-2">
-                                                <strong>Reduce Stock</strong>
-                                            </div>
-                                            <form action="{{ route('books.reduceStock', $book->id) }}" method="POST" class="d-inline">
-                                                @csrf
-                                                <input type="number" name="reduce_stock" class="form-control form-control-sm mb-2" placeholder="Enter amount" min="1" max="{{ $book->stock }}" required style="width: 100px;">
-                                                <button type="submit" class="btn btn-danger btn-sm">Reduce</button>
-                                            </form>
-                                        </div>
-                                    </td>
+                               
                                     <td>
                                         <div class="dropdown">
                                             <button class="btn btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -259,196 +192,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-    // Toggle filter card functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleFilterBtn = document.getElementById('toggleFilterCard');
-        const filterBody = document.getElementById('filterBody');
-
-        if (toggleFilterBtn) {
-            toggleFilterBtn.addEventListener('click', function() {
-                if (filterBody.style.display === 'none' || filterBody.style.display === '') {
-                    filterBody.style.display = 'block';
-                    toggleFilterBtn.innerHTML = '<i class="bi bi-chevron-up"></i>';
-                } else {
-                    filterBody.style.display = 'none';
-                    toggleFilterBtn.innerHTML = '<i class="bi bi-chevron-down"></i>';
-                }
-            });
-        }
-    });
-
-    // Toggle create form functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButton = document.getElementById('toggleCreateForm');
-        const createForm = document.getElementById('createForm');
-        const cancelButton = document.getElementById('cancelCreateForm');
-
-        toggleButton.addEventListener('click', function() {
-            if (createForm.style.display === 'none' || createForm.style.display === '') {
-                createForm.style.display = 'block';
-                toggleButton.textContent = '- Hide Add Book';
-            } else {
-                createForm.style.display = 'none';
-                toggleButton.textContent = '+ Add Book';
-            }
-        });
-
-        cancelButton.addEventListener('click', function() {
-            createForm.style.display = 'none';
-            toggleButton.textContent = '+ Add Book';
-        });
-    });
-
-    // Stock popover functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const stockCells = document.querySelectorAll('.stock-cell');
-
-        stockCells.forEach(cell => {
-            cell.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const bookId = this.getAttribute('data-book-id');
-                const popover = document.getElementById('stockPopover' + bookId);
-
-                // Hide all other popovers
-                document.querySelectorAll('.stock-popover').forEach(p => {
-                    if (p !== popover) p.style.display = 'none';
-                });
-
-                // Toggle current popover
-                if (popover.style.display === 'none' || popover.style.display === '') {
-                    popover.style.display = 'block';
-                } else {
-                    popover.style.display = 'none';
-                }
-            });
-        });
-
-        // Prevent hiding popover when clicking inside it
-        document.querySelectorAll('.stock-popover').forEach(popover => {
-            popover.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-        });
-
-        // Hide popovers when clicking outside
-        document.addEventListener('click', function(e) {
-            // Don't hide if clicking inside a popover or on a stock cell
-            if (!e.target.closest('.stock-popover') && !e.target.closest('.stock-cell')) {
-                document.querySelectorAll('.stock-popover').forEach(p => {
-                    p.style.display = 'none';
-                });
-            }
-        });
-
-        // Hide popovers when create form is shown
-        const createForm = document.getElementById('createForm');
-        if (createForm) {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                        if (createForm.style.display === 'block') {
-                            document.querySelectorAll('.stock-popover').forEach(p => {
-                                p.style.display = 'none';
-                            });
-                        }
-                    }
-                });
-            });
-            observer.observe(createForm, { attributes: true });
-        }
-
-        // Select all functionality
-        const selectAllCheckbox = document.getElementById('selectAll');
-        const selectAllHeaderCheckbox = document.getElementById('selectAllHeader');
-        const bookCheckboxes = document.querySelectorAll('.book-checkbox');
-        const bulkActionsRow = document.getElementById('bulkActionsRow');
-        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
-
-        function updateBulkActions() {
-            const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
-            const count = checkedBoxes.length;
-
-            if (count > 0) {
-                bulkActionsRow.classList.remove('d-none');
-            } else {
-                bulkActionsRow.classList.add('d-none');
-            }
-        }
-
-        selectAllCheckbox.addEventListener('change', function() {
-            bookCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            selectAllHeaderCheckbox.checked = this.checked;
-            updateBulkActions();
-        });
-
-        selectAllHeaderCheckbox.addEventListener('change', function() {
-            bookCheckboxes.forEach(checkbox => {
-                checkbox.checked = this.checked;
-            });
-            selectAllCheckbox.checked = this.checked;
-            updateBulkActions();
-        });
-
-        bookCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
-                const allChecked = checkedBoxes.length === bookCheckboxes.length;
-                const someChecked = checkedBoxes.length > 0;
-
-                selectAllCheckbox.checked = allChecked;
-                selectAllCheckbox.indeterminate = someChecked && !allChecked;
-                selectAllHeaderCheckbox.checked = allChecked;
-                selectAllHeaderCheckbox.indeterminate = someChecked && !allChecked;
-                updateBulkActions();
-            });
-        });
-
-        // Bulk delete functionality
-        bulkDeleteBtn.addEventListener('click', function() {
-            const checkedBoxes = document.querySelectorAll('.book-checkbox:checked');
-            if (checkedBoxes.length === 0) {
-                alert('Please select at least one book to delete.');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete the selected books?')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = '{{ route("books.bulkDelete") }}';
-
-                // CSRF token
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = '_token';
-                csrfInput.value = '{{ csrf_token() }}';
-                form.appendChild(csrfInput);
-
-                // Method spoofing for DELETE
-                const methodInput = document.createElement('input');
-                methodInput.type = 'hidden';
-                methodInput.name = '_method';
-                methodInput.value = 'DELETE';
-                form.appendChild(methodInput);
-
-                // Book IDs
-                checkedBoxes.forEach(checkbox => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'book_ids[]';
-                    input.value = checkbox.value;
-                    form.appendChild(input);
-                });
-
-                document.body.appendChild(form);
-                form.submit();
-            }
-        });
-    });
-
-
-</script>
-@endpush

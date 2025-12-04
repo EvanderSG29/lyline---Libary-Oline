@@ -5,60 +5,12 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 @endpush
 <div class="container">
-    <!-- Hidden Filter Card -->
-    <div id="filterCard" style="display: none;" class="mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                {{ __('Filters') }}
-                <button type="button" class="btn-close" id="closeFilterCard" aria-label="Close"></button>
-            </div>
-            <div class="card-body">
-                <!-- Server-side Filters -->
-                <form method="GET" class="mb-3">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <input type="text" name="search" class="form-control" placeholder="Search by user name or book title..." value="{{ request('search') }}">
-                        </div>
-                        <div class="col-md-3">
-                            <select name="status" class="form-control">
-                                <option value="">All Status</option>
-                                <option value="borrowed" {{ request('status') == 'borrowed' ? 'selected' : '' }}>Borrowed</option>
-                                <option value="returned" {{ request('status') == 'returned' ? 'selected' : '' }}>Returned</option>
-                                <option value="approaching" {{ request('status') == 'approaching' ? 'selected' : '' }}>Approaching Deadline</option>
-                                <option value="overdue" {{ request('status') == 'overdue' ? 'selected' : '' }}>Overdue</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100">Filter</button>
-                        </div>
-                    </div>
-                </form>
-
-                <!-- Client-side Search -->
-                <div class="mb-3">
-                    <div class="input-group">
-                        <input type="text" id="searchInput" class="form-control" placeholder="Client-side search...">
-                        <button class="btn btn-outline-secondary d-none" type="button" id="clearButton">
-                            <i class="bi bi-x"></i>
-                        </button>
-                        <button class="btn btn-outline-secondary" type="button" id="searchButton">
-                            <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     {{ __('Borrow Book') }}
                     <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleFilterCard">
-                            <i class="bi bi-funnel-fill fs-6"></i> Filters
-                        </button>
                         <button type="button" class="btn btn-success" id="toggleCreateForm">
                             + Add Borrower
                         </button>
@@ -130,16 +82,9 @@
 
                     <table class="table">
                         <thead>
-                            <tr id="bulkActionsRow" class="d-none">
-                                <th><input type="checkbox" id="selectAll"></th>
-                                <th colspan="8" id="bulkActionsCell">
-                                    <button type="button" class="btn btn-danger btn-sm" id="bulkDeleteBtn">
-                                        <i class="bi bi-trash"></i> Delete Selected
-                                    </button>
-                                </th>
-                            </tr>
+ 
                             <tr>
-                                <th><input type="checkbox" id="selectAllHeader"></th>
+
                                 <th width="80px">No</th>
                                 <th>Borrow Date</th>
                                 <th>Borrower Name</th>
@@ -154,7 +99,7 @@
                             @php $i = 0; @endphp
                             @forelse($borrows as $borrow)
                                 <tr class="status-{{ $borrow->status_color }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $borrow->status_details }}">
-                                    <td><input type="checkbox" class="borrow-checkbox" value="{{ $borrow->id }}"></td>
+                                 
                                     <td>{{ ++$i }}</td>
                                     <td>{{ \Carbon\Carbon::parse($borrow->borrow_date)->format('Y-m-d') }}</td>
                                     <td>{{ $borrow->user->name }}</td>
@@ -219,155 +164,3 @@
 </div>
 @endsection
 
-@push('scripts')
-<script>
-    // Initialize tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-
-    // Toggle filter card functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleFilterBtn = document.getElementById('toggleFilterCard');
-        const filterCard = document.getElementById('filterCard');
-        const closeFilterBtn = document.getElementById('closeFilterCard');
-
-        if (toggleFilterBtn) {
-            toggleFilterBtn.addEventListener('click', function() {
-                if (filterCard.style.display === 'none' || filterCard.style.display === '') {
-                    filterCard.style.display = 'block';
-                } else {
-                    filterCard.style.display = 'none';
-                }
-            });
-        }
-
-        if (closeFilterBtn) {
-            closeFilterBtn.addEventListener('click', function() {
-                filterCard.style.display = 'none';
-            });
-        }
-    });
-
-    const searchInput = document.getElementById('searchInput');
-    const clearButton = document.getElementById('clearButton');
-    const searchButton = document.getElementById('searchButton');
-
-    // Toggle clear button visibility
-    searchInput.addEventListener('input', function() {
-        if (this.value.trim() !== '') {
-            clearButton.classList.remove('d-none');
-        } else {
-            clearButton.classList.add('d-none');
-        }
-    });
-
-    // Clear input on clear button click
-    clearButton.addEventListener('click', function() {
-        searchInput.value = '';
-        clearButton.classList.add('d-none');
-        // Reset table display
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            row.style.display = '';
-        });
-    });
-
-    // Search functionality on button click
-    searchButton.addEventListener('click', function() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const rows = document.querySelectorAll('tbody tr');
-
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            if (text.includes(searchTerm)) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    });
-
-    // Toggle create form functionality
-    const toggleCreateFormBtn = document.getElementById('toggleCreateForm');
-    const createForm = document.getElementById('createForm');
-    const cancelCreateBtn = document.getElementById('cancelCreate');
-    const borrowForm = document.getElementById('borrowForm');
-
-    toggleCreateFormBtn.addEventListener('click', function() {
-        if (createForm.classList.contains('d-none')) {
-            createForm.classList.remove('d-none');
-            toggleCreateFormBtn.textContent = 'Hide Form';
-            // Focus on the first select field
-            createForm.querySelector('select[name="data_borrow_id"]').focus();
-        } else {
-            createForm.classList.add('d-none');
-            toggleCreateFormBtn.textContent = '+ Add Borrower';
-            // Reset form
-            borrowForm.reset();
-        }
-    });
-
-    cancelCreateBtn.addEventListener('click', function() {
-        createForm.classList.add('d-none');
-        toggleCreateFormBtn.textContent = '+ Add Borrower';
-        borrowForm.reset();
-    });
-
-    // Show/hide time inputs based on borrow and return dates
-    const borrowDateInput = document.querySelector('input[name="borrow_date"]');
-    const returnDateInput = document.querySelector('input[name="return_date"]');
-    const timeInputs = document.getElementById('timeInputs');
-
-    function checkDates() {
-        if (borrowDateInput.value && returnDateInput.value && borrowDateInput.value === returnDateInput.value) {
-            timeInputs.style.display = 'block';
-        } else {
-            timeInputs.style.display = 'none';
-        }
-    }
-
-    // Check on input for real-time validation
-    borrowDateInput.addEventListener('input', checkDates);
-    returnDateInput.addEventListener('input', checkDates);
-
-    // Also check on change for compatibility
-    borrowDateInput.addEventListener('change', checkDates);
-    returnDateInput.addEventListener('change', checkDates);
-
-    // Initial check in case dates are pre-filled
-    checkDates();
-
-    // Handle status change via AJAX
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('status-option')) {
-            e.preventDefault();
-            const borrowId = e.target.getAttribute('data-borrow-id');
-            const newStatus = e.target.getAttribute('data-status');
-
-            fetch(`/borrows/${borrowId}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ status: newStatus })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Reload the page to update colors and status
-                    location.reload();
-                } else {
-                    alert('Error updating status: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the status.');
-            });
-        }
-    });
-</script>
-@endpush

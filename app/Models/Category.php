@@ -11,6 +11,7 @@ class Category extends Model implements Auditable
     use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
+        'category_id',
         'category',
         'created_by',
         'updated_by',
